@@ -1,12 +1,19 @@
 import { Col, Row } from "react-bootstrap";
 import SupriseImage from "../images/fireworks2.jpg";
 
-const NewsCard = ({ author, date, body, title }) => {
+const NewsCard = ({ author, date, body, title, onClick, image }) => {
+	const contentTrimmer = (content, length) => {
+		const trim = [];
+		for (let i = 0; i < length; i++) {
+			trim.push(content[i]);
+		}
+		return trim;
+	};
 	return (
 		<Col sm={3} className="mt-5">
 			<Row>
 				<img
-					src={SupriseImage}
+					src={image}
 					className="fluid"
 					// style={{ backgroundColor: "green" }}
 				/>
@@ -17,10 +24,12 @@ const NewsCard = ({ author, date, body, title }) => {
 					{date} - {author}
 				</p>
 				<p className="text-secondary" style={{ fontSize: 13 }}>
-					{body} ...
+					{contentTrimmer(body, 70)} ...
 				</p>
 				<div className="mb-5">
-					<button className="btn btn-danger">Read More</button>
+					<button className="btn btn-danger" onClick={onClick}>
+						Read More
+					</button>
 				</div>
 			</Row>
 		</Col>

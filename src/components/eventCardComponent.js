@@ -7,7 +7,14 @@ import {
 	IoTimeOutline,
 } from "react-icons/io5";
 
-const EventCardComponent = ({ name, time, address }) => {
+const EventCardComponent = ({
+	name,
+	time,
+	address,
+	onClick,
+	title,
+	description,
+}) => {
 	return (
 		<div
 			style={{
@@ -30,14 +37,10 @@ const EventCardComponent = ({ name, time, address }) => {
 				</Col>
 				<Col sm={8}>
 					<Row className="d-flex text-start  text-dark">
-						<h4 style={{ fontWeight: "400" }}>Morning Sermon Prayer</h4>
+						<h4 style={{ fontWeight: "400" }}>{title}</h4>
 					</Row>
 					<Row className="d-flex text-start text-secondary">
-						<p style={{ fontSize: 14 }}>
-							Quis magna reprehenderit et velit et consectetur elit labore
-							fugiat ad. Et veniam id in id incididunt ectetur elit labore
-							fugiat ad. Et veniam id in id incididunt
-						</p>
+						<p style={{ fontSize: 14 }}>{description}</p>
 					</Row>
 					<Row>
 						<div className="d-flex justify-content-start flex-row flex-wrap align-items-start">
@@ -57,7 +60,9 @@ const EventCardComponent = ({ name, time, address }) => {
 					</Row>
 				</Col>
 				<Col sm={1} className="d-flex justify-centent-center">
-					<button className="btn btn-primary">Register</button>
+					<button className="btn btn-primary" onClick={onClick}>
+						Register
+					</button>
 				</Col>
 			</Row>
 		</div>

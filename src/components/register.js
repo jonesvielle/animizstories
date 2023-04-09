@@ -193,6 +193,7 @@ const Register = () => {
 
 					setIsLoading(false);
 					setImageArray([]);
+					setShowModal(true);
 				})
 				.catch((error) => {
 					// console.log(error.response.data.message.errors.message);
@@ -321,7 +322,7 @@ const Register = () => {
 							</select>
 						</Col>
 
-						<Col sm={5} className="mt-3">
+						<Col sm={10} className="mt-3">
 							<textarea
 								onChange={onChangeDescription}
 								placeholder="Describe what you want"

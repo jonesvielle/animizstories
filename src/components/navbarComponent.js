@@ -1,8 +1,20 @@
 import { Navbar, Nav, Container, NavDropdown } from "react-bootstrap";
 import Logo from "../images/animizstories.png";
 import "../App.css";
+import { useNavigate } from "react-router-dom";
+// import {}
 
 const NavbarComponent = () => {
+	const navigation = useNavigate();
+	const locateGallery = () => {
+		navigation("/gallery");
+	};
+	const locateHome = () => {
+		navigation("/");
+	};
+	const locateContact = () => {
+		navigation("/register");
+	};
 	return (
 		<Navbar
 			bg="transparent"
@@ -35,7 +47,7 @@ const NavbarComponent = () => {
 				<Navbar.Collapse id="basic-navbar-nav" className="justify-content-end">
 					<Nav className="justify-content-end w-100">
 						<Nav.Link
-							href="#home"
+							onClick={locateHome}
 							className="rounded-btn-white"
 							style={{ color: "black", fontSize: 14 }}
 						>
@@ -43,17 +55,17 @@ const NavbarComponent = () => {
 						</Nav.Link>
 						<Nav.Link
 							className="rounded-btn-white"
-							href="#link"
+							onClick={locateGallery}
 							style={{ color: "black", fontSize: 14 }}
 						>
 							Our Gallery
 						</Nav.Link>
 						<Nav.Link
 							className="rounded-btn-white"
-							href="#link"
+							onClick={locateContact}
 							style={{ color: "black", fontSize: 14 }}
 						>
-							Contact Us
+							Try Now
 						</Nav.Link>
 					</Nav>
 				</Navbar.Collapse>

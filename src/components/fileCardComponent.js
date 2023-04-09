@@ -1,5 +1,5 @@
 import { Col } from "react-bootstrap";
-import { IoCloseOutline } from "react-icons/io5";
+import { IoCloseCircleOutline, IoCloseOutline } from "react-icons/io5";
 
 const FileCardComponent = ({ file, onCancel }) => {
 	return (
@@ -10,10 +10,11 @@ const FileCardComponent = ({ file, onCancel }) => {
 				fontWeight: "light",
 				borderRadius: "5px",
 				// width: "48%",
+				wordWrap: "break-word",
 			}}
 		>
 			{file}
-			<IoCloseOutline className="mx-2" onClick={onCancel} />
+			<IoCloseCircleOutline className="mx-2" onClick={onCancel} />
 		</Col>
 	);
 };

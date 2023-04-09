@@ -38,30 +38,161 @@ import TestimonyCard from "./testimonyCard";
 import NewsCard from "./newsCard";
 import RoutesComponent from "./routesComponent";
 // import { Routes, Route } from "react-router-dom";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import axios from "axios";
 
 const Home = () => {
+	const [showModal, setShowModal] = useState(false);
+	const [events, setEvents] = useState([]);
+	const [fullname, setFullname] = useState("");
+	const [email, setEmail] = useState("");
+	const [error, setError] = useState("");
+	const [selectdEventId, setSelectedEventId] = useState("");
+	const [isLoading, setIsLoading] = useState(false);
+	const [blogPosts, setBlogPosts] = useState([]);
+
+	const handleFullname = (e) => {
+		setFullname(e.target.value);
+	};
+	const handleEmail = (e) => {
+		setEmail(e.target.value);
+	};
+	const navigation = useNavigate();
 	// alert(sasToken);
 	const handleClose = () => {
 		console.log("closes");
 	};
+	const locateRegister = () => {
+		navigation("/register");
+	};
+	const locateBlog = (id) => {
+		navigation("/blog", { state: { id } });
+	};
+
+	const handleCloseModal = () => {
+		setShowModal(false);
+	};
+	const handleShowModal = (id) => {
+		setShowModal(true);
+		setSelectedEventId(id);
+	};
+
+	const getEvents = () => {
+		let config = {
+			method: "get",
+			maxBodyLength: Infinity,
+			url: process.env.REACT_APP_API_URL + "events",
+			headers: {},
+		};
+
+		axios
+			.request(config)
+			.then((response) => {
+				// console.log(JSON.stringify(response.data));
+				setEvents(response.data);
+			})
+			.catch((error) => {
+				console.log(error);
+			});
+	};
+
+	const attendEvent = (id) => {
+		setIsLoading(true);
+		if (fullname.length < 1) {
+			setError("enter fullname");
+			setIsLoading(false);
+		} else if (email.length < 1) {
+			setError("enter fullname");
+			setIsLoading(false);
+		} else {
+			let data = JSON.stringify({
+				fullname: fullname,
+				email: email,
+				event_id: id,
+			});
+
+			let config = {
+				method: "post",
+				maxBodyLength: Infinity,
+				url: process.env.REACT_APP_API_URL + "attendance",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				data: data,
+			};
+
+			axios
+				.request(config)
+				.then((response) => {
+					// console.log(JSON.stringify(response.data));
+					alert(`Thanks ${fullname}, response submitted successfully`);
+					setShowModal(false);
+					setIsLoading(false);
+				})
+				.catch((error) => {
+					console.log(error);
+					setError("something went wrong!");
+					setIsLoading(false);
+				});
+		}
+	};
+
+	const getBlogPost = () => {
+		let config = {
+			method: "get",
+			maxBodyLength: Infinity,
+			url: process.env.REACT_APP_API_URL + "blogPosts",
+			headers: {},
+		};
+
+		axios
+			.request(config)
+			.then((response) => {
+				// console.log(JSON.stringify(response.data));
+				setBlogPosts(response.data);
+			})
+			.catch((error) => {
+				console.log(error);
+			});
+	};
+
+	useEffect(() => {
+		getEvents();
+		getBlogPost();
+	}, []);
 	return (
 		<div style={{ width: "100%" }}>
 			{/* <RoutesComponent /> */}
-			{/* <Modal show={true} onHide={handleClose}>
-				<Modal.Header closeButton>
-					<Modal.Title>Modal heading</Modal.Title>
-				</Modal.Header>
-				<Modal.Body>Woohoo, you're reading this text in a modal!</Modal.Body>
-				<Modal.Footer>
-					<Button variant="secondary" onClick={handleClose}>
-						Close
-					</Button>
-					<Button variant="primary" onClick={handleClose}>
-						Save Changes
-					</Button>
-				</Modal.Footer>
-			</Modal> */}
+			<Modal show={showModal} onHide={handleClose}>
+				<Modal.Body>
+					<h4>Event Sign Up</h4>
+					<label className="text-danger">{error}</label>
+					<TextInputComponent
+						placeholder={"Full Name"}
+						onChange={handleFullname}
+					/>
+					<TextInputComponent placeholder={"Email"} onChange={handleEmail} />
+					<div>
+						<Button
+							disabled={isLoading}
+							onClick={() => {
+								attendEvent(selectdEventId);
+							}}
+							className="mt-1"
+						>
+							{isLoading ? "Loading..." : "Submit"}
+						</Button>{" "}
+						<Button
+							onClick={handleCloseModal}
+							className="mt-1 bg-danger"
+							style={{ borderWidth: 0 }}
+						>
+							Go back
+						</Button>
+					</div>
+				</Modal.Body>
+			</Modal>
 			<HeroComponent />
 			<Container>
 				<Row
@@ -216,7 +347,11 @@ const Home = () => {
 			<div style={{ backgroundColor: "darkcyan", padding: "5%" }}>
 				<h2 className="text-white">
 					Ready to surprise someone?{" "}
-					<a href="#" className="text-white">
+					<a
+						onClick={locateRegister}
+						className="text-white"
+						style={{ cursor: "pointer" }}
+					>
 						Try Now
 					</a>
 				</h2>
@@ -286,47 +421,49 @@ const Home = () => {
 					</Col>
 				</Row>
 			</div>
-			<div className="p-5 d-flex flex-column justify-content-center align-items-center">
-				<Row>
-					<Col>
-						<h1 className="text-dark blocked-text my-3">Events Schedule</h1>
-					</Col>
-					<div
-						className="mb-5"
-						style={{
-							display: "flex",
-							flexDirection: "row",
-							alignItems: "center",
-							width: "100%",
-							// backgroundColor: "red",
-							justifyContent: "center",
-						}}
-					>
+			{events.length < 1 ? (
+				<></>
+			) : (
+				<div className="p-5 d-flex flex-column justify-content-center align-items-center">
+					<Row>
+						<Col>
+							<h1 className="text-dark blocked-text my-3">Events Schedule</h1>
+						</Col>
 						<div
-							style={{ backgroundColor: "cyan", width: "20%", height: 3 }}
-						></div>
-						<IoInfiniteOutline style={{ margin: "1%", color: "cyan" }} />
-						<div
-							style={{ backgroundColor: "cyan", width: "20%", height: 3 }}
-						></div>
-					</div>
-				</Row>
-				<EventCardComponent
-					name={"Atiaro Tobi"}
-					time={"10:30 - 11:00"}
-					address={"Wellington Hall Effurun..."}
-				/>
-				<EventCardComponent
-					name={"Atiaro Tobi"}
-					time={"10:30 - 11:00"}
-					address={"Wellington Hall Effurun..."}
-				/>
-				<EventCardComponent
-					name={"Atiaro Tobi"}
-					time={"10:30 - 11:00"}
-					address={"Wellington Hall Effurun..."}
-				/>
-			</div>
+							className="mb-5"
+							style={{
+								display: "flex",
+								flexDirection: "row",
+								alignItems: "center",
+								width: "100%",
+								// backgroundColor: "red",
+								justifyContent: "center",
+							}}
+						>
+							<div
+								style={{ backgroundColor: "cyan", width: "20%", height: 3 }}
+							></div>
+							<IoInfiniteOutline style={{ margin: "1%", color: "cyan" }} />
+							<div
+								style={{ backgroundColor: "cyan", width: "20%", height: 3 }}
+							></div>
+						</div>
+					</Row>
+					{events.map((c, i) => (
+						<EventCardComponent
+							title={c.event_name}
+							description={c.description}
+							key={i}
+							onClick={() => {
+								handleShowModal(c._id);
+							}}
+							name={c.author}
+							time={c.start_time + " - " + c.end_time}
+							address={c.venue}
+						/>
+					))}
+				</div>
+			)}
 			<div className="testimony">
 				<Row>
 					<Col>
@@ -362,60 +499,51 @@ const Home = () => {
 					/>
 				</Row>
 			</div>
-			<div className="p-5">
-				<Row>
-					<Col>
-						<h1 className="blocked-text">Latest From Animestories</h1>
-					</Col>
-					<div
-						className="mb-0"
-						style={{
-							display: "flex",
-							flexDirection: "row",
-							alignItems: "center",
-							width: "100%",
-							// backgroundColor: "red",
-							justifyContent: "center",
-						}}
-					>
+			{blogPosts.length < 1 ? (
+				<></>
+			) : (
+				<div className="p-5">
+					<Row>
+						<Col>
+							<h1 className="blocked-text">Latest From Animestories</h1>
+						</Col>
 						<div
-							style={{ backgroundColor: "cyan", width: "10%", height: 3 }}
-						></div>
-						<IoInfiniteOutline style={{ margin: "1%", color: "cyan" }} />
-						<div
-							style={{ backgroundColor: "cyan", width: "10%", height: 3 }}
-						></div>
-					</div>
-				</Row>
-				<Row className="d-flex justify-content-center">
-					<NewsCard
-						author={"JONES OBENOBE"}
-						date={"Jul 12, 2022"}
-						body={
-							"Dolor est sit minim laboris incididunt aliquip aliquip quis. Tempor tempor"
-						}
-						title={"News flash title"}
-					/>
-
-					<NewsCard
-						author={"JONES OBENOBE"}
-						date={"Jul 12, 2022"}
-						body={
-							"Dolor est sit minim laboris incididunt aliquip aliquip quis. Tempor tempor"
-						}
-						title={"News flash title"}
-					/>
-
-					<NewsCard
-						author={"JONES OBENOBE"}
-						date={"Jul 12, 2022"}
-						body={
-							"Dolor est sit minim laboris incididunt aliquip aliquip quis. Tempor tempor"
-						}
-						title={"News flash title"}
-					/>
-				</Row>
-			</div>
+							className="mb-0"
+							style={{
+								display: "flex",
+								flexDirection: "row",
+								alignItems: "center",
+								width: "100%",
+								// backgroundColor: "red",
+								justifyContent: "center",
+							}}
+						>
+							<div
+								style={{ backgroundColor: "cyan", width: "10%", height: 3 }}
+							></div>
+							<IoInfiniteOutline style={{ margin: "1%", color: "cyan" }} />
+							<div
+								style={{ backgroundColor: "cyan", width: "10%", height: 3 }}
+							></div>
+						</div>
+					</Row>
+					<Row className="d-flex justify-content-center">
+						{blogPosts.map((c, i) => (
+							<NewsCard
+								image={c.image}
+								key={i}
+								onClick={() => {
+									locateBlog(c._id);
+								}}
+								author={c.author}
+								date={c.created_date}
+								body={c.post}
+								title={c.title}
+							/>
+						))}
+					</Row>
+				</div>
+			)}
 			<footer className="bg-dark">
 				<Row className="d-flex justify-content-center align-items-center py-5">
 					<div className="d-flex justify-content-center align-items-center">
@@ -447,7 +575,7 @@ const Home = () => {
 						</Col>
 					</Row>
 				</Row>
-				{/* <Row>
+				<Row>
 					<div className="py-2">
 						<IoLogoFacebook
 							// color="white"
@@ -456,12 +584,12 @@ const Home = () => {
 						/>
 						<IoLogoTwitter size={25} className="m-2 logo-hover" />
 					</div>
-				</Row> */}
-				{/* <Row style={{ backgroundColor: "black" }} className="p-3">
+				</Row>
+				<Row style={{ backgroundColor: "black" }} className="p-3">
 					<div className="text-light">
-						© 2022 Animestories. All Rights Reserved
+						© 2023 Animestories. All Rights Reserved
 					</div>
-				</Row> */}
+				</Row>
 			</footer>
 			{/* <RoutesComponent /> */}
 		</div>
